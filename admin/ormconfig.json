@@ -1,0 +1,13 @@
+{
+  "type": "mysql",
+  "host": "db",
+  "port": 3306,
+  "username": "microservice_nodejs",
+  "password": "rootroot",
+  "database": "microservice_nodejs",
+  "entities": [
+    "src/entity/*.js"
+  ],
+  "logging": false,
+  "synchronize": true
+}

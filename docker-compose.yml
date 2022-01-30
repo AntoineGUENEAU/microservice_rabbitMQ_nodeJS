@@ -1,0 +1,51 @@
+version: "3"
+
+services:
+    admin:
+        container_name: microservice_nodejs_admin
+        build: ./admin
+        ports:
+            - '8000:8000'
+        command: sh -c "npm install && npm run dev && /bin/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node consumer.js"
+        volumes:
+            - ./admin:/var/www/html/src
+        networks:
+            - rabbitmq_nodejs
+    main:
+        container_name: microservice_nodejs_main
+        build: ./main
+        ports:
+            - '8001:8001'
+        command: sh -c "npm install && npm run dev && /bin/wait-for-it.sh rabbitmq:5672 --timeout=30 -- node consumer.js"
+        volumes:
+            - ./main:/var/www/html/src
+        networks:
+            - rabbitmq_nodejs
+    db:
+        image: mariadb:10.5
+        container_name: microservice_nodejs_db
+        command: --max_allowed_packet=50M --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+        expose:
+            - 3306
+        ports:
+            - "3306:3306"
+        environment:
+            MYSQL_DATABASE: microservice_nodejs
+            MYSQL_USER: microservice_nodejs
+            MYSQL_PASSWORD: rootroot
+            MYSQL_ROOT_PASSWORD: rootroot
+        restart: on-failure
+    mongoDB:
+        image: mongo:latest
+        ports:
+            - "27017:27017"
+    rabbitmq:
+        image: rabbitmq:3.8-management-alpine
+        ports:
+            - "5673:5672"
+            - "15673:15672"
+        networks:
+            - rabbitmq_nodejs
+networks:
+    rabbitmq_nodejs:
+        driver: bridge
